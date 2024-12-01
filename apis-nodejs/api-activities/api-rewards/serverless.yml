@@ -1,0 +1,86 @@
+org: chimichami
+service: rewards-api
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  memorySize: 1024
+  timeout: 30
+  iam:
+    role: arn:aws:iam::280415542443:role/LabRole
+  environment:
+    REWARDS_TABLE: ${sls:stage}-t_rewards
+    TOKENS_TABLE: ${sls:stage}-t_access_tokens
+    VALIDATE_FUNCTION_NAME: validateAccessToken-${sls:stage}
+
+functions:
+  createReward:
+    handler: src/lambdas/createReward.handler
+    events:
+      - http:
+          path: /reward/create
+          method: post
+          cors: true
+          integration: lambda
+
+  deleteReward:
+    handler: src/lambdas/deleteReward.handler
+    events:
+      - http:
+          path: /reward/delete/{reward_id}
+          method: delete
+          cors: true
+          integration: lambda
+
+  updateReward:
+    handler: src/lambdas/updateReward.handler
+    events:
+      - http:
+          path: /reward/update/{reward_id}
+          method: put
+          cors: true
+          integration: lambda
+
+  getReward:
+    handler: src/lambdas/getReward.handler
+    events:
+      - http:
+          path: /reward/{reward_id}
+          method: get
+          cors: true
+          integration: lambda
+      - http:
+          path: /rewards
+          method: get
+          cors: true
+          integration: lambda
+
+resources:
+  Resources:
+    RewardsTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:provider.environment.REWARDS_TABLE}
+        AttributeDefinitions:
+          - AttributeName: tenant_id
+            AttributeType: S
+          - AttributeName: reward_id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: tenant_id
+            KeyType: HASH
+          - AttributeName: reward_id
+            KeyType: RANGE
+        BillingMode: PAY_PER_REQUEST
+
+    TokensTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:provider.environment.TOKENS_TABLE}
+        AttributeDefinitions:
+          - AttributeName: token
+            AttributeType: S
+        KeySchema:
+          - AttributeName: token
+            KeyType: HASH
+        BillingMode: PAY_PER_REQUEST
