@@ -24,5 +24,4 @@ sudo npm install -g serverless
 
 ## 3. Configure las credenciales de acceso a AWS
 Crear el directorio /home/ubuntu/.aws
-Crear el archivo credentials dentro del directorio anterior con el contenido indicado por el
-docente. Nota: Estas credenciales sólo son válidas durante el Lab de AWS Academy (4 horas)
+Dentro de ahí, ejecutar *pico credentials* y colocar las credenciales (Hacer paso 3 cada vez que se encienda la consola de aws)
